@@ -1,0 +1,16 @@
+<?php
+/**
+ * @file
+ * Enables admins to select a node that is displayed in maintenance mode.
+ *
+ * @author Christian Hanne <hanne@laborb.de>
+ */
+
+/**
+ * Implements hook_uninstall().
+ *
+ * Remove all maintenance node variables.
+ */
+function maintenance_node_uninstall() {
+  variable_del('maintenance_node');
+}

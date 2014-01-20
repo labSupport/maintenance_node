@@ -1,0 +1,4 @@
+name = Maintenance Node
+description = Enables admins to select a node that is displayed in maintenance mode.
+package = Other
+core = 7.x

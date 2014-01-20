@@ -1,0 +1,75 @@
+<?php
+/**
+ * @file
+ * Enables admins to select a node that is displayed in maintenance mode.
+ *
+ * @author Christian Hanne <hanne@laborb.de>
+ * @link http://www.laborb.de
+ */
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function maintenance_node_form_system_site_maintenance_mode_alter(&$form, &$form_state, $form_id) {
+  $options = array(t('Select a maintenance node...'));
+
+  $results = db_query("SELECT nid, title FROM {node} WHERE status = :status ORDER BY title ASC", array(':status' => NODE_PUBLISHED));
+  foreach ($results as $result) {
+    $options[$result->nid] = $result->title;
+  }
+
+  $maintenance_node_id = variable_get('maintenance_node', 0);
+  $form['maintenance_node'] = array(
+    '#type' => 'select',
+    '#title' => t('Maintenance node'),
+    '#description' => t('Select a node you would like to use as a maintenance page.'),
+    '#default_value' => $maintenance_node_id,
+    '#options' => $options,
+  );
+
+  // Disable the maintenance mode message, as it will be filled automatically.
+  if ($maintenance_node_id != 0) {
+    $form['maintenance_mode_message']['#disabled'] = TRUE;
+  }
+}
+
+/**
+ * Clears all previously cached maintenance nodes.
+ */
+function maintenance_node_clear_cache_on_submit() {
+  cache_clear_all('maintenance_node_*');
+}
+
+/**
+ * Prepares the maintenance node for display on the maintenance page.
+ */
+function maintenance_node_preprocess_maintenance_page(&$variables) {
+  global $language;
+
+  $maintenance_node_id = variable_get('maintenance_node', 0);
+  if ($maintenance_node_id != 0) {
+    $cache_id = 'maintenance_node';
+    $cache_id .= '_' . $maintenance_node_id;
+    $cache_id .= '_' . $language->language;
+
+    $node_rendered = cache_get($cache_id);
+    if (!$node_rendered) {
+      if (function_exists('translation_node_get_translations')) {
+        $langcode = $language->language;
+
+        $base_node = node_load($maintenance_node_id);
+        $translations = translation_node_get_translations($base_node->tnid);
+        $node = (isset($translations[$langcode]) ? node_load($translations[$langcode]->nid) : $base_node);
+      }
+      else {
+        $node = node_load($maintenance_node_id);
+      }
+
+      $node_show = node_show($node);
+      $node_rendered = render($node_show);
+      cache_set($cache_id, $node_rendered);
+    }
+
+    $variables['content'] = $node_rendered;
+  }
+}
