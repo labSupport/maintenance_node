@@ -34,6 +34,34 @@ function maintenance_node_form_system_site_maintenance_mode_alter(&$form, &$form
 }
 
 /**
+ * Implements hook_node_update().
+ */
+function maintenance_node_node_update($node) {
+  maintenance_node_update_cache($node->nid);
+}
+
+/**
+ * Implements hook_node_delete().
+ */
+function maintenance_node_node_delete($node) {
+  maintenance_node_update_cache($node->nid, TRUE);
+}
+
+/**
+ * Helper function to decide if the cache should be emptied.
+ */
+function maintenance_node_update_cache($nid, $delete = FALSE) {
+  $maintenance_node_id = variable_get('maintenance_node', 0);
+  if ($nid == $maintenance_node_id) {
+    maintenance_node_clear_cache_on_submit();
+
+    if ($delete) {
+      variable_set('maintenance_node', 0);
+    }
+  }
+}
+
+/**
  * Clears all previously cached maintenance nodes.
  */
 function maintenance_node_clear_cache_on_submit() {
