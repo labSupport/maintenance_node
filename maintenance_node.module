@@ -75,7 +75,7 @@ function maintenance_node_preprocess_maintenance_page(&$variables) {
   global $language;
 
   $maintenance_node_id = variable_get('maintenance_node', 0);
-  if ($maintenance_node_id != 0) {
+  if ($maintenance_node_id != 0 && strpos($_SERVER['SCRIPT_NAME'], 'update.php') === FALSE) {
     $cache_id = 'maintenance_node';
     $cache_id .= '_' . $maintenance_node_id;
     $cache_id .= '_' . $language->language;
