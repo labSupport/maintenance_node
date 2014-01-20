@@ -65,7 +65,7 @@ function maintenance_node_update_cache($nid, $delete = FALSE) {
  * Clears all previously cached maintenance nodes.
  */
 function maintenance_node_clear_cache_on_submit() {
-  cache_clear_all('maintenance_node_*');
+  cache_clear_all('maintenance_node_*', 'cache', TRUE);
 }
 
 /**
