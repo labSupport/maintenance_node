@@ -104,3 +104,20 @@ function maintenance_node_preprocess_maintenance_page(&$variables) {
     $variables['content'] = $node_rendered;
   }
 }
+
+/**
+ * Adds some variables to the node template for the maintenance node.
+ * Themers will be able to determin if the current node is a maintenance node.
+ */
+function maintenance_node_preprocess_node(&$variables) {
+  $maintenance_nid = variable_get('maintenance_node', 0);
+
+  $is_maintenance_node = ($variables['nid'] == $maintenance_nid);
+  $is_maintenance_translation = ($variables['tnid'] == $maintenance_nid);
+  $is_not_zero = $maintenance_nid != 0;
+
+  $variables['is_maintenance_node'] = ($is_maintenance_node || $is_maintenance_translation) && $is_not_zero;
+  if ($variables['is_maintenance_node']) {
+    $variables['classes_array'][] = 'maintenance-node';
+  }
+}
