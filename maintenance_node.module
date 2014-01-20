@@ -80,8 +80,8 @@ function maintenance_node_preprocess_maintenance_page(&$variables) {
     $cache_id .= '_' . $maintenance_node_id;
     $cache_id .= '_' . $language->language;
 
-    $node_rendered = cache_get($cache_id);
-    if (!$node_rendered) {
+    $cache = cache_get($cache_id);
+    if (!$cache) {
       if (function_exists('translation_node_get_translations')) {
         $langcode = $language->language;
 
@@ -96,6 +96,9 @@ function maintenance_node_preprocess_maintenance_page(&$variables) {
       $node_show = node_show($node);
       $node_rendered = render($node_show);
       cache_set($cache_id, $node_rendered);
+    }
+    else {
+      $node_rendered = $cache->data;
     }
 
     $variables['content'] = $node_rendered;
